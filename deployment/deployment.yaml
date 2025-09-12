@@ -1,0 +1,83 @@
+#data-pvc.yaml
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ip-allocator-data
+  namespace: kube-system
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: standard   # 根据你的环境改成实际可用的 StorageClass
+
+
+# deployment yaml
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: ip-allocator
+  namespace: kube-system
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: ip-allocator
+      component: ip-allocator
+  template:
+    metadata:
+      labels:
+        app: ip-allocator
+        component: ip-allocator
+    spec:
+      tolerations:
+      - effect: NoSchedule
+        operator: Exists
+        key: node-role.kubernetes.io/master
+      nodeSelector:
+        node-role.kubernetes.io/ebsys: ""
+      serviceAccount: ip-allocator
+      containers:
+      - name: ip-allocator
+        image: registry-cn-beijing2-internal.ebtech-inc.com/ebcloud/ip-allocator:yujie-5c61dac3
+        env:
+        - name: AUTH_TOKEN
+          value: "Ebtech@123"
+        - name: PORT
+          value: "6789"
+        - name: DATA_FILE
+          value: "/data/ip_alloc.json"
+        volumeMounts:
+        - name: data-volume
+          mountPath: /data
+      volumes:
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: ip-allocator-data
+
+
+# service.yaml            
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ip-allocator
+  namespace: kube-system
+  labels:
+    app: ip-allocator
+    component: ip-allocator
+spec:
+  type: NodePort
+  ports:
+  - port: 12345
+    name: http
+    targetPort: 6789
+    nodePort: 30000
+  selector:
+    app: ip-allocator
+    component: ip-allocator   

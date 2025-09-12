@@ -1,0 +1,15 @@
+---
+apiVersion: kubescheduler.config.k8s.io/v1beta2
+kind: KubeSchedulerConfiguration
+clientConnection:
+  kubeconfig: /etc/kubernetes/scheduler.conf
+extenders:
+- urlPrefix: "http://10.5.21.1:32766"
+  filterVerb: filter_onlyone
+  bindVerb: bind
+  enableHTTPS: false
+  nodeCacheCapable: false
+  managedResources:
+  - name: nvidia.com/gpu
+    ignoredByScheduler: false
+  ignorable: false
