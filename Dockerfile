@@ -1,6 +1,6 @@
 # Build the ip-allocator binary
 # FROM golang:1.24.4 AS builder
-FROM registry.cn-beijing.aliyuncs.com/dproxy/golang:1.24.1-alpine AS builder
+FROM registry.cn-beijing.aliyuncs.com/dproxy/golang:1.24.4-alpine AS builder
 ARG TARGETOS
 ARG TARGETARCH
 ENV GO111MODULE=on  GOPROXY=https://goproxy.cn,direct
@@ -11,7 +11,7 @@ RUN go mod download
 
 # Copy the go source
 COPY main.go main.go
-COPY pkg/ pkg/
+# COPY pkg/ pkg/
 
 RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} go build -a -o ip-allocator main.go
 
