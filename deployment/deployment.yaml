@@ -11,7 +11,7 @@ spec:
   resources:
     requests:
       storage: 1Gi
-  storageClassName: standard   # 根据你的环境改成实际可用的 StorageClass
+  storageClassName: shared-nvme-cn-beijing3-test   # 根据你的环境改成实际可用的 StorageClass
 
 
 # deployment yaml
@@ -41,10 +41,10 @@ spec:
         key: node-role.kubernetes.io/master
       nodeSelector:
         node-role.kubernetes.io/ebsys: ""
-      serviceAccount: ip-allocator
+      # serviceAccount: ip-allocator
       containers:
       - name: ip-allocator
-        image: registry-cn-beijing2-internal.ebtech-inc.com/ebcloud/ip-allocator:yujie-5c61dac3
+        image: harbor-ops.ebtech.com/ebcloud/ip-allocator:20250912154545
         env:
         - name: AUTH_TOKEN
           value: "Ebtech@123"
